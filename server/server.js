@@ -3,8 +3,12 @@ import sequelize from "./db/connection.js";
 import typedef from "./graphql/typedef.js";
 import myResolver from "./graphql/resolver.js";
 import migration from './model.config.js'
+import dotenv from 'dotenv'
 
 const main = async () => {
+
+  dotenv.config()
+
   // db
   try {
     await sequelize.authenticate();
@@ -20,6 +24,7 @@ const main = async () => {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
+    context: ctx => ctx,
   });
 
   server.listen().then(({ url }) => {
