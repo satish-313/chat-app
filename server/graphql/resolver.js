@@ -18,7 +18,7 @@ export default {
       let decodeToken = jwt.verify(token, process.env.jwtsecreat);
 
       if (!decodeToken) {
-        throw new AuthenticationError("token expire");
+        throw new UserInputError("token expire");
       }
 
       try {
@@ -55,26 +55,26 @@ export default {
     login: async (_, args, context, info) => {
       const { user, password } = args;
 
-      const { errors, valid } = loginValidation(args);
+      let { errors, valid } = loginValidation(args);
 
       if (!valid) {
         throw new UserInputError("validation error", errors);
       }
-
+      errors = {}
       const tuser = await username.findOne({
         where: { user },
       });
 
       if (!tuser) {
         errors.user = "invalide input";
-        throw new AuthenticationError(" user not found", errors);
+        throw new UserInputError(" user not found", errors);
       }
 
       const correctPassword = await bcrypt.compare(password, tuser.password);
 
       if (!correctPassword) {
         errors.password = "password incorrect";
-        throw new AuthenticationError("password error", errors);
+        throw new UserInputError("password error", errors);
       }
 
       const token = jwt.sign({ user: tuser.user }, process.env.jwtsecreat, {
@@ -91,7 +91,6 @@ export default {
   Mutation: {
     register: async (_, args, context, info) => {
       let { user, email, password } = args;
-      console.log("error in register")
       const { errors, valid } = registerValidation(args);
 
       if (!valid) {
@@ -115,12 +114,13 @@ export default {
           token,
         };
       } catch (error) {
+        let errors = {}
         if (
           error.parent.code === "23505" ||
           error.parent.detail.includes("already exists")
         ) {
           errors[error.errors[0].path] = error.errors[0].message;
-          throw new UserInputError(error.errors[0].message, { errors });
+          throw new UserInputError(error.errors[0].message, errors );
         }
       }
     },
