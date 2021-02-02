@@ -1,29 +1,21 @@
-import username from "../db/model/User.js";
+import username from "../../db/model/User.js";
 import bcrypt from "bcryptjs";
-import { registerValidation } from "../utils/registerValidation.js";
-import { UserInputError, AuthenticationError } from "apollo-server";
-import { loginValidation } from "../utils/loginValidation.js";
+import { registerValidation } from "../../utils/registerValidation.js";
+import { UserInputError } from "apollo-server";
+import { loginValidation } from "../../utils/loginValidation.js";
+import pkg from "sequelize";
+const { Op } = pkg;
 import jwt from "jsonwebtoken";
-import pkg from "sequelize"
-const {Op} = pkg;
+import { contextMiddleware } from '../../utils/contextMiddleware.js'
 
 export default {
   Query: {
     getUser: async (_, __, context, info) => {
-      let token;
-      if (context.req.headers.jwtauth) {
-        token = context.req.headers.jwtauth;
-      }
-
-      let decodeToken = jwt.verify(token, process.env.jwtsecreat);
-
-      if (!decodeToken) {
-        throw new UserInputError("token expire");
-      }
+      let user = contextMiddleware(context);
 
       try {
         const users = await username.findOne({
-          where: { user: decodeToken.user },
+          where: { user },
         });
         return users;
       } catch (error) {
@@ -32,19 +24,11 @@ export default {
     },
 
     getUsers: async (_, __, context, info) => {
-      let token;
-      if (context.req.headers.jwtauth) {
-        token = context.req.headers.jwtauth;
-      }
+      let user = contextMiddleware(context);
 
-      let decodeToken = jwt.verify(token, process.env.jwtsecreat);
-
-      if (!decodeToken) {
-        throw new AuthenticationError("token expire");
-      }
       try {
         const users = await username.findAll({
-          where:{user: {[Op.ne]:decodeToken.user}}
+          where: { user: { [Op.ne]: user } },
         });
         return users;
       } catch (error) {
@@ -60,7 +44,7 @@ export default {
       if (!valid) {
         throw new UserInputError("validation error", errors);
       }
-      errors = {}
+      errors = {};
       const tuser = await username.findOne({
         where: { user },
       });
@@ -114,13 +98,13 @@ export default {
           token,
         };
       } catch (error) {
-        let errors = {}
+        let errors = {};
         if (
           error.parent.code === "23505" ||
           error.parent.detail.includes("already exists")
         ) {
           errors[error.errors[0].path] = error.errors[0].message;
-          throw new UserInputError(error.errors[0].message, errors );
+          throw new UserInputError(error.errors[0].message, errors);
         }
       }
     },

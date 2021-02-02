@@ -1,7 +1,7 @@
 import { ApolloServer } from "apollo-server";
 import sequelize from "./db/connection.js";
 import typedef from "./graphql/typedef.js";
-import myResolver from "./graphql/resolver.js";
+import myResolver from "./graphql/resolver/index.js";
 import migration from './model.config.js'
 import dotenv from 'dotenv'
 

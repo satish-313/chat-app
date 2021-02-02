@@ -9,10 +9,18 @@ export default gql`
     token: String
     createdAt: String
   }
+  type Message{
+    uuid: String!
+    content: String!
+    from: String!
+    to: String!
+    createdAt: String!
+  }
   type Query {
     getUser: Username!
     getUsers: [Username]!
     login(user: String!,password: String!): Username!
+    getMessages(from: String!):[Message]!
   }
   type Mutation {
     register(
@@ -21,5 +29,7 @@ export default gql`
       password: String!
       confirmPassword: String!
     ): Username!
+
+    sendMessage(to:String!,content:String!): Message!
   }
 `;
