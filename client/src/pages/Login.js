@@ -2,6 +2,7 @@ import React,{useState} from "react";
 import { gql, useLazyQuery } from "@apollo/client";
 import { Row, Col, Form, Button } from "react-bootstrap";
 import {Link} from 'react-router-dom'
+import {useAuthDispatch} from '../contextAuth'
 
 const LOGIN_USER = gql`
   query register(
@@ -25,6 +26,8 @@ export default function Login(props) {
     password: "",
   });
 
+  const dispatch = useAuthDispatch()
+
   const [errors, setErrors] = useState({});
 
   const [loginUser, { loading }] = useLazyQuery(LOGIN_USER, {
@@ -33,7 +36,7 @@ export default function Login(props) {
       setErrors(err.graphQLErrors[0].extensions);
     },
     onCompleted(data){
-      localStorage.setItem('token',data.login.token)
+      dispatch({type: 'LOGIN',payload: data.login})
       props.history.push('/')
     }
   });
