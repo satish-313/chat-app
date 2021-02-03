@@ -1,18 +1,12 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import { gql, useLazyQuery } from "@apollo/client";
 import { Row, Col, Form, Button } from "react-bootstrap";
-import {Link} from 'react-router-dom'
-import {useAuthDispatch} from '../contextAuth'
+import { Link } from "react-router-dom";
+import { useAuthDispatch } from "../context/contextAuth";
 
 const LOGIN_USER = gql`
-  query register(
-    $user: String!
-    $password: String!
-  ) {
-    login(
-      user: $user
-      password: $password
-    ) {
+  query register($user: String!, $password: String!) {
+    login(user: $user, password: $password) {
       user
       email
       token
@@ -26,7 +20,7 @@ export default function Login(props) {
     password: "",
   });
 
-  const dispatch = useAuthDispatch()
+  const dispatch = useAuthDispatch();
 
   const [errors, setErrors] = useState({});
 
@@ -35,10 +29,10 @@ export default function Login(props) {
       // console.log(err.graphQLErrors[0].extensions);
       setErrors(err.graphQLErrors[0].extensions);
     },
-    onCompleted(data){
-      dispatch({type: 'LOGIN',payload: data.login})
-      props.history.push('/')
-    }
+    onCompleted(data) {
+      dispatch({ type: "LOGIN", payload: data.login });
+      props.history.push("/");
+    },
   });
 
   const submitLoginForm = (e) => {
@@ -83,8 +77,10 @@ export default function Login(props) {
             <Button disabled={loading} variant="success" type="submit">
               {loading ? "loading.." : "Login"}
             </Button>
-            <br/>
-            <small>Don't have an account? <Link to='/register'>signup</Link></small>
+            <br />
+            <small>
+              Don't have an account? <Link to="/register">signup</Link>
+            </small>
           </div>
         </Form>
       </Col>

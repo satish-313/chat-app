@@ -1,5 +1,5 @@
 import React from 'react'
-import {useAuthState} from '../contextAuth';
+import {useAuthState} from '../context/contextAuth';
 import {Route,Redirect} from 'react-router-dom'
 
 export default function DynamicRoute(props){
