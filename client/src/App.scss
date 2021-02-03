@@ -1,5 +1,6 @@
 $blue: #1877f2;
 $green: #42b72a;
+$paragraph-margin-bottom: 0;
 
 @import "~bootstrap/scss/bootstrap";
 
@@ -11,4 +12,8 @@ body {
     rgba(253, 29, 29, 0.9) 50%,
     rgba(252, 176, 69, 0.9) 100%
   );
+}
+
+.sidecolor{
+  background-color: #e9e8df;
 }

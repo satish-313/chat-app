@@ -6,7 +6,8 @@ import { loginValidation } from "../../utils/loginValidation.js";
 import pkg from "sequelize";
 const { Op } = pkg;
 import jwt from "jsonwebtoken";
-import { contextMiddleware } from '../../utils/contextMiddleware.js'
+import { contextMiddleware } from "../../utils/contextMiddleware.js";
+import message from "../../db/model/Message.js";
 
 export default {
   Query: {
@@ -27,8 +28,24 @@ export default {
       let user = contextMiddleware(context);
 
       try {
-        const users = await username.findAll({
+        let users = await username.findAll({
+          attributes: ["user", "imageUrl", "createdAt"],
           where: { user: { [Op.ne]: user } },
+        });
+
+        const allUserMessages = await message.findAll({
+          where: {
+            [Op.or]: [{ from: user }, { to: user }],
+          },
+          order: [["createdAt", "DESC"]],
+        });
+
+        users = users.map((otherUser) => {
+          const latestMessage = allUserMessages.find(
+            (m) => m.from === otherUser.user || m.to === otherUser.user
+          );
+          otherUser.latestMessage = latestMessage;
+          return otherUser;
         });
         return users;
       } catch (error) {
@@ -67,7 +84,6 @@ export default {
 
       return {
         ...tuser.toJSON(),
-        createdAt: tuser.createdAt.toISOString(),
         token,
       };
     },

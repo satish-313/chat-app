@@ -4,10 +4,12 @@ export default gql`
   type Username {
     id: Int!
     user: String!
-    email: String!
+    email: String
     password: String!
     token: String
     createdAt: String
+    imageUrl: String
+    latestMessage: Message
   }
   type Message{
     uuid: String!
