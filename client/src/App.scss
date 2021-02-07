@@ -24,3 +24,21 @@ body {
 .active-user {
   background-color: #a7f343;
 }
+
+.message-box {
+  height: 500px;
+  overflow-y: scroll;
+
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.user-image{
+  width: 50px; 
+  height: 50px; 
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 10px;
+}

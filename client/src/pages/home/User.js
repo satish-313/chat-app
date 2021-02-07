@@ -53,12 +53,10 @@ export default function User() {
           <div>
             <Image
               src={user.imageUrl}
-              roundedCircle
-              className="mr-2"
-              style={{ width: 50, height: 50, objectFit: "cover" }}
+              className="user-image"
             />
           </div>
-          <div>
+          <div className="d-none d-md-block ">
             <p className="text-success">{user.user}</p>
             <p className="font-weight-light">
               {user.latestMessage
@@ -72,7 +70,7 @@ export default function User() {
   }
 
   return (
-    <Col xs={4} className="p-0 sidecolor">
+    <Col xs={2} md={4} className="p-0 sidecolor">
       {userMarkup}
     </Col>
   );

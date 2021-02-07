@@ -1,7 +1,8 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { Col } from "react-bootstrap";
 import { gql, useLazyQuery } from "@apollo/client";
 import { useMessageDispatch, useMessageState } from "../../context/message";
+import Message from "../Message";
 
 const GET_MESSAGES = gql`
   query GetMessages($from: String!) {
@@ -51,10 +52,18 @@ export default function Messages() {
   } else if (loading) {
     selectedChatMarkup = <p>Loading..</p>;
   } else if (messages.length > 0) {
-    selectedChatMarkup = messages.map((m) => <p key={m.uuid}>{m.content}</p>);
+    selectedChatMarkup = messages.map((m, index) => (
+      <Fragment>
+        <Message key={m.uuid} message={m} />
+      </Fragment>
+    ));
   } else if (messages.length === 0) {
     selectedChatMarkup = <p>Your are now connect send first message</p>;
   }
 
-  return <Col xs={8}>{selectedChatMarkup}</Col>;
+  return (
+    <Col xs={10} md={8} className="message-box d-flex flex-column-reverse">
+      {selectedChatMarkup}
+    </Col>
+  );
 }
