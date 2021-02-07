@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
-import { Col } from "react-bootstrap";
-import { gql, useLazyQuery } from "@apollo/client";
+import { Col, Form, Button } from "react-bootstrap";
+import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import { useMessageDispatch, useMessageState } from "../../context/message";
 import Message from "../Message";
 
@@ -16,15 +16,40 @@ const GET_MESSAGES = gql`
   }
 `;
 
+const SEND_MESSAGE = gql`
+  mutation SendMessage($to: String!, $content: String!) {
+    sendMessage(to: $to, content: $content) {
+      from
+      createdAt
+      to
+      uuid
+      content
+    }
+  }
+`;
+
 export default function Messages() {
   const dispatch = useMessageDispatch();
   const { users } = useMessageState();
+  const [content, setContent] = React.useState("");
   const selectUser = users?.find((u) => u?.selected === true);
   const messages = selectUser?.messages;
 
   const [getMessages, { loading, data: messagesData }] = useLazyQuery(
     GET_MESSAGES
   );
+
+  const [sendMessage] = useMutation(SEND_MESSAGE, {
+    onError: (err) => console.log(err),
+    onCompleted: (data) =>
+      dispatch({
+        type: "ADD_MESSAGE",
+        payload: {
+          user: selectUser,
+          message: data.sendMessage,
+        },
+      }),
+  });
 
   React.useEffect(() => {
     if (selectUser && !selectUser.messages) {
@@ -46,11 +71,24 @@ export default function Messages() {
     }
   }, [messagesData]);
 
+  const submitMessage = (e) => {
+    e.preventDefault();
+
+    if (content.trim() === "" || !selectUser) return;
+    setContent("");
+    sendMessage({
+      variables: {
+        to: selectUser.user,
+        content,
+      },
+    });
+  };
+
   let selectedChatMarkup;
   if (!messages && !loading) {
-    selectedChatMarkup = <p>select a friend</p>;
+    selectedChatMarkup = <p className="text-center mb-2">select a friend</p>;
   } else if (loading) {
-    selectedChatMarkup = <p>Loading..</p>;
+    selectedChatMarkup = <p className="text-center mb-2">Loading..</p>;
   } else if (messages.length > 0) {
     selectedChatMarkup = messages.map((m, index) => (
       <Fragment>
@@ -58,12 +96,31 @@ export default function Messages() {
       </Fragment>
     ));
   } else if (messages.length === 0) {
-    selectedChatMarkup = <p>Your are now connect send first message</p>;
+    selectedChatMarkup = (
+      <p className="text-center mb-2">
+        Your are now connect send first message
+      </p>
+    );
   }
 
   return (
-    <Col xs={10} md={8} className="message-box d-flex flex-column-reverse">
-      {selectedChatMarkup}
+    <Col xs={10} md={8}>
+      <div className="message-box d-flex flex-column-reverse">
+        {selectedChatMarkup}
+      </div>
+
+      <Form onSubmit={submitMessage}>
+        <Form.Group className="d-flex align-items-center">
+          <Form.Control
+            type="text"
+            className="rounded-pill "
+            placeholder="type a message.."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+          <Button onClick={submitMessage}>sumbit</Button>
+        </Form.Group>
+      </Form>
     </Col>
   );
 }

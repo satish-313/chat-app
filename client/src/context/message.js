@@ -1,7 +1,8 @@
 import React, { createContext, useReducer, useContext } from "react";
 
 const messageReducer = (state, action) => {
-  let userscopy;
+  let userscopy, userIndex;
+  const { user, message, messages } = action.payload;
   switch (action.type) {
     case "SET_USERS":
       return {
@@ -9,9 +10,8 @@ const messageReducer = (state, action) => {
         users: action.payload,
       };
     case "SET_USER_MESSAGES":
-      const { user, messages } = action.payload;
       userscopy = [...state.users];
-      const userIndex = userscopy.findIndex((u) => u.user === user);
+      userIndex = userscopy.findIndex((u) => u.user === user);
       userscopy[userIndex] = { ...userscopy[userIndex], messages };
       return {
         ...state,
@@ -26,6 +26,22 @@ const messageReducer = (state, action) => {
         ...state,
         users: userscopy,
       };
+    case "ADD_MESSAGE":
+      userscopy = [...state.users];
+      userIndex = userscopy.findIndex((u) => u.user === user.user);
+
+      let newUser = {
+        ...userscopy[userIndex],
+        messages: [message, ...userscopy[userIndex].messages],
+      };
+
+      userscopy[userIndex] = newUser;
+
+      return {
+        ...state,
+        users: userscopy,
+      };
+
     default:
       throw new Error(`Unknown action type: ${action.type}`);
   }
